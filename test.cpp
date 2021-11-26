@@ -7,7 +7,38 @@ int *p1;
 int *p2;
 
 int main(){
+    p1 = (int*)malloc(sizeof(int)*2);
+    p2 = (int*)malloc(sizeof(int)*2);
 
+    p1[0] = 100;
+    p2[0] = 250;
+    p1[1] = 101;
+    p2[1] = 251;
+
+    FILE *file;
+    file = fopen("okay","w+");
+
+    fwrite(p1,sizeof(int)*2,1,file);
+    fwrite(p2,sizeof(int)*2,1,file);
+    fclose(file);
+    free(p1);
+    free(p2);
+
+
+    p1 = (int*)malloc(sizeof(int)*2);
+    p2 = (int*)malloc(sizeof(int)*2);
+
+    FILE *file1;
+    file1 = fopen("okay","r");
+
+    fread(p1,sizeof(int)*2,1,file1);
+    fread(p2,sizeof(int)*2,1,file1);
+
+    fclose(file1);
+
+    cout<<p1[0]<<" "<<p2[0]<<endl;
+    cout<<p1[1]<<" "<<p2[1]<<endl;
+    return 0;
 }
 
 

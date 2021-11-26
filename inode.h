@@ -8,8 +8,8 @@ using namespace std;
 #define _INODE_
 
 #define BLOCK_SIZE 4096
-#define NUMBER_OF_INODE 100
-#define NUMBER_OF_DISK_BLOCKS 500
+#define NUMBER_OF_INODE 39000
+#define NUMBER_OF_DISK_BLOCKS 130000
 #define INPUT_SIZE 262144 // 256 KB
 struct inode{
     int size;

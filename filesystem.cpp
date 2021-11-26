@@ -27,17 +27,20 @@ int create_filesystem(string name){
     }
     
     cout<<"File Size:"<<sizeof(main_block)+sizeof(inode) * NUMBER_OF_INODE+sizeof(disk_block)*NUMBER_OF_DISK_BLOCKS<<endl;
+    cout<<"Blocks Size:"<<sizeof(main_block)<< " "<<sizeof(inode)<<" "<<sizeof(disk_block)<<endl;
 
     FILE *file;
     file = fopen(name.c_str(),"w+");
 
-    fwrite(&fs_block,sizeof(struct main_block),1,file);
-    for(int i=0;i<NUMBER_OF_INODE;i++){
-        fwrite(&(inodes[i]),sizeof(struct inode),1,file);
-    }
-    for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
-        fwrite(&(disk_blocks[i]),sizeof(struct disk_block),1,file);
-    }
+    fwrite(fs_block,sizeof(struct main_block),1,file);
+    // for(int i=0;i<NUMBER_OF_INODE;i++){
+    //     fwrite(&(inodes[i]),sizeof(struct inode),1,file);
+    // }
+    // for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
+    //     fwrite(&(disk_blocks[i]),sizeof(struct disk_block),1,file);
+    // }
+    fwrite(inodes,sizeof(struct inode)*NUMBER_OF_INODE,1,file);
+    fwrite(disk_blocks,sizeof(struct disk_block)*NUMBER_OF_DISK_BLOCKS,1,file);
     fclose(file);
 
     free(fs_block);
@@ -55,16 +58,18 @@ int mount_disk(string fsname){
     inodes = (inode*)malloc(sizeof(inode)*NUMBER_OF_INODE);
     disk_blocks = (disk_block*)malloc(sizeof(disk_block)*NUMBER_OF_DISK_BLOCKS);
 
-    fread(&fs_block,sizeof(struct main_block),1,file);
+    fread(fs_block,sizeof(struct main_block),1,file);
 
     //cout<<sizeof(fs_block);
-    for(int i=0;i<NUMBER_OF_INODE;i++){
-        fread(&(inodes[i]),sizeof(struct inode),1,file);
-        //cout<<sizeof(inodes[i]);
-    }
-    for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
-        fread(&(disk_blocks[i]),sizeof(struct disk_block),1,file);
-    }
+    // for(int i=0;i<NUMBER_OF_INODE;i++){
+    //     fread(&(inodes[i]),sizeof(struct inode),1,file);
+    //     //cout<<sizeof(inodes[i]);
+    // }
+    // for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
+    //     fread(&(disk_blocks[i]),sizeof(struct disk_block),1,file);
+    // }
+    fread(inodes,sizeof(struct inode)*NUMBER_OF_INODE,1,file);
+    fread(disk_blocks,sizeof(struct disk_block)*NUMBER_OF_DISK_BLOCKS,1,file);
     fclose(file);
     return 0;
 }
@@ -73,13 +78,15 @@ int unmount_disk(string fsname){
     FILE *file;
     file = fopen(fsname.c_str(),"w");
 
-    fwrite(&fs_block,sizeof(struct main_block),1,file);
-    for(int i=0;i<NUMBER_OF_INODE;i++){
-        fwrite(&(inodes[i]),sizeof(struct inode),1,file);
-    }
-    for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
-        fwrite(&(disk_blocks[i]),sizeof(struct disk_block),1,file);
-    }
+    fwrite(fs_block,sizeof(struct main_block),1,file);
+    // for(int i=0;i<NUMBER_OF_INODE;i++){
+    //     fwrite(&(inodes[i]),sizeof(struct inode),1,file);
+    // }
+    // for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
+    //     fwrite(&(disk_blocks[i]),sizeof(struct disk_block),1,file);
+    // }
+    fwrite(inodes,sizeof(struct inode)*NUMBER_OF_INODE,1,file);
+    fwrite(disk_blocks,sizeof(struct disk_block)*NUMBER_OF_DISK_BLOCKS,1,file);
     fclose(file);
     free(fs_block);
     free(inodes);
