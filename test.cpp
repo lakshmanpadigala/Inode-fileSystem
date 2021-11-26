@@ -1,8 +1,24 @@
-// #include<iostream>
-// #include<stdio.h>
-// #include<stdlib.h>
-// #include<string.h>
-// using namespace std;
+#include<iostream>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+using namespace std;
+int *p1;
+int *p2;
+
+int main(){
+
+}
+
+
+
+
+
+
+
+
+
+
 
 // int main(){
 //     // int *ptr = (int*)malloc(sizeof(int));
@@ -23,9 +39,9 @@
 
 // }
 
-#include <fstream>
-#include <string>
+// #include <fstream>
+// #include <string>
 
- // Add this code inside your main() function
-std::ifstream ifs("text.txt");      
-std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+//  // Add this code inside your main() function
+// std::ifstream ifs("text.txt");      
+// std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());

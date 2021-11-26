@@ -61,4 +61,5 @@ void list_open_files();
 void list_files();
 int delete_file(string filename);
 int file_utilites();
+int print_all();
 #endif

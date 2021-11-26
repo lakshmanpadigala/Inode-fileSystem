@@ -26,7 +26,7 @@ int create_filesystem(string name){
         disk_blocks[i].next_block_number = -1;
     }
     
-    cout<<sizeof(main_block)+sizeof(inode) * NUMBER_OF_INODE+sizeof(disk_block)*NUMBER_OF_DISK_BLOCKS<<endl;
+    cout<<"File Size:"<<sizeof(main_block)+sizeof(inode) * NUMBER_OF_INODE+sizeof(disk_block)*NUMBER_OF_DISK_BLOCKS<<endl;
 
     FILE *file;
     file = fopen(name.c_str(),"w+");
@@ -47,7 +47,6 @@ int create_filesystem(string name){
     return 0;
 }
 
-
 int mount_disk(string fsname){
     FILE *file;
     file = fopen(fsname.c_str(),"r");
@@ -57,6 +56,7 @@ int mount_disk(string fsname){
     disk_blocks = (disk_block*)malloc(sizeof(disk_block)*NUMBER_OF_DISK_BLOCKS);
 
     fread(&fs_block,sizeof(struct main_block),1,file);
+
     //cout<<sizeof(fs_block);
     for(int i=0;i<NUMBER_OF_INODE;i++){
         fread(&(inodes[i]),sizeof(struct inode),1,file);
@@ -71,7 +71,7 @@ int mount_disk(string fsname){
 
 int unmount_disk(string fsname){
     FILE *file;
-    file = fopen(fsname.c_str(),"w+");
+    file = fopen(fsname.c_str(),"w");
 
     fwrite(&fs_block,sizeof(struct main_block),1,file);
     for(int i=0;i<NUMBER_OF_INODE;i++){
@@ -81,13 +81,13 @@ int unmount_disk(string fsname){
         fwrite(&(disk_blocks[i]),sizeof(struct disk_block),1,file);
     }
     fclose(file);
-
     free(fs_block);
     free(inodes);
     free(disk_blocks);
 
     return 0;
 }
+
 int next_free_inode(){
     for(int i=0;i<NUMBER_OF_INODE;i++){
         if(fs_block->free_inodes[i]){
@@ -97,6 +97,7 @@ int next_free_inode(){
     }
     return -1;
 }
+
 int next_free_disk_block(){
     for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
         if(fs_block->free_disk_blocks[i]){
@@ -135,6 +136,7 @@ int create_file(string name){
     cout<<"File created!"<<endl;
     return 0;
 }
+
 int open_file(string name){
     int mode;
     bool found_flag = false;
@@ -176,30 +178,8 @@ int open_file(string name){
 
     return open_position;
 }
+
 int close_file(int file_descriptor){
-    //bool found_flag = false;
-    //int inum;
-    // for(int i=0;i<NUMBER_OF_INODE;i++){
-    //     if(!fs_block->free_inodes[i]){
-    //         if(strcmp(fs_block->files_list[i].filename,name.c_str()) == 0){
-    //             found_flag = true;
-    //             inum = i;
-    //             break;
-    //         }
-    //     }
-    // }
-    // if(!found_flag){
-    //     cout<<"File Doesnot Exist!"<<endl;
-    //     return -1;
-    // }
-    // int file_desc = -1;
-    // for(int i=0;i<16;i++){
-    //     if(fs_block->open_files_flags[i]){
-    //         if(strcmp(fs_block->open_files[i].fname,name.c_str()) == 0){
-    //             file_desc = i;
-    //         }
-    //     }
-    // }
     if(file_descriptor == -1){
         cout<<"File is Not Opened!"<<endl;
         return -1;
@@ -235,7 +215,9 @@ int write_file(int file_descriptor){
     //cin.getline(temp_data,INPUT_SIZE);
     //cout<<temp_data<<endl;
     string temp_data;
-    cin>>temp_data;
+    //cin>>temp_data;
+    getline(cin,temp_data);
+    getline(cin,temp_data);
     //int temp_size = strlen(temp_data);
     int temp_size = temp_data.size();
     //inodes[inode_number].size = temp_size;
@@ -295,7 +277,9 @@ int append_file(int file_descriptor){
     cout<<"Enter String!";
     //cin.getline(temp_data,INPUT_SIZE);
     string temp_data;
-    cin>>temp_data;
+    //cin>>temp_data;
+    getline(cin,temp_data);
+    getline(cin,temp_data);
     //int temp_size = strlen(temp_data);
     int temp_size = temp_data.size();
 
@@ -378,10 +362,10 @@ int read_file(int file_descriptor){
 }
 
 void list_open_files(){
-    cout<<"Filename"<<"\t"<<"Mode"<<"\t"<<"Inode Number"<<endl;
+    cout<<"Filename"<<"\t"<<"Mode"<<"\t"<<"Inode Number"<<"\t"<<"File Descriptor"<<endl;
     for(int i=0;i<16;i++){
         if(fs_block->open_files_flags[i]==true){
-            cout<<fs_block->open_files[i].fname <<"\t\t"<<fs_block->open_files[i].mode<<"\t\t"<<fs_block->open_files[i].inode_number << endl;
+            cout<<fs_block->open_files[i].fname <<"\t\t"<<fs_block->open_files[i].mode<<"\t\t"<<fs_block->open_files[i].inode_number<<"\t\t"<<i<< endl;
         }
     }
 }
@@ -426,7 +410,6 @@ int delete_file(string filename){
     cout<<"File Deleted Successfully!"<<endl;
     return 0;
 }
-
 
 int file_utilites(){
     int option,temp;
@@ -489,6 +472,9 @@ int file_utilites(){
             cin>>disk_name;
             unmount_disk(disk_name);
             return 0;
+        case 11:
+            print_all();
+            break;
         default:
             cout<<"Enter Vaild Input!"<<endl;
             break;
@@ -497,7 +483,20 @@ int file_utilites(){
 
 }
 
-
+int print_all(){
+    for(int i=0;i<NUMBER_OF_INODE;i++){
+        cout<<i<<"th inode:"<<fs_block->free_inodes[i]<<endl;
+    }
+    for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
+        cout<<i<<"th disk block"<<fs_block->free_disk_blocks[i]<<endl;
+    }
+    for(int i=0;i<NUMBER_OF_INODE;i++){
+        if(!fs_block->free_inodes[i]){
+            cout<<fs_block->files_list[i].filename<<endl;
+        }
+    }
+    return 0;
+}
 
 
 int main(){
