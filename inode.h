@@ -7,19 +7,20 @@ using namespace std;
 #ifndef _INODE_
 #define _INODE_
 
-#define BLOCK_SIZE 1024
+#define BLOCK_SIZE 4096
 #define NUMBER_OF_INODE 100
 #define NUMBER_OF_DISK_BLOCKS 500
-
+#define INPUT_SIZE 262144 // 256 KB
 struct inode{
     int size;
     char fileName[8];
     int first_disk_block_number;
+    int last_disk_block_number;
 };
 
 struct disk_block{
     int next_block_number;
-    char data[1024];
+    char data[BLOCK_SIZE];
 };
 
 struct file{

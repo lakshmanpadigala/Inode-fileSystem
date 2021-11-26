@@ -17,6 +17,7 @@ int create_filesystem(string name){
     for(int i=0;i<NUMBER_OF_INODE;i++){
         fs_block->free_inodes[i] = true;
         inodes[i].first_disk_block_number = -1;
+        inodes[i].last_disk_block_number = -1;
         strcpy(inodes[i].fileName, "");
         inodes[i].size = 0;
     }
@@ -56,10 +57,10 @@ int mount_disk(string fsname){
     disk_blocks = (disk_block*)malloc(sizeof(disk_block)*NUMBER_OF_DISK_BLOCKS);
 
     fread(&fs_block,sizeof(struct main_block),1,file);
-    cout<<sizeof(fs_block);
+    //cout<<sizeof(fs_block);
     for(int i=0;i<NUMBER_OF_INODE;i++){
         fread(&(inodes[i]),sizeof(struct inode),1,file);
-        cout<<sizeof(inodes[i]);
+        //cout<<sizeof(inodes[i]);
     }
     for(int i=0;i<NUMBER_OF_DISK_BLOCKS;i++){
         fread(&(disk_blocks[i]),sizeof(struct disk_block),1,file);
@@ -128,6 +129,7 @@ int create_file(string name){
     strcpy(fs_block->files_list[free_inode].filename,name.c_str());
     strcpy(inodes[free_inode].fileName,name.c_str());
     inodes[free_inode].first_disk_block_number = free_block;
+    inodes[free_inode].last_disk_block_number = free_block;
     inodes[free_inode].size = 0;
     fs_block->file_count += 1;
     cout<<"File created!"<<endl;
@@ -221,14 +223,91 @@ int next_free_open_file(){
 int write_file(int file_descriptor){
     if(fs_block->open_files_flags[file_descriptor] == false){
         cout<<"File Error!"<<endl;
+        return -1;
     }
-    
+    if(fs_block->open_files[file_descriptor].mode != 1){
+        cout<<"File Not Openen in Write Mode!"<<endl;
+        return -1;
+    }
+    int inode_number = fs_block->open_files[file_descriptor].inode_number;
+    char temp_data[INPUT_SIZE];//256kb
+    cout<<"Enter String!";
+    cin.getline(temp_data,INPUT_SIZE);
+    int temp_size = strlen(temp_data);
+    //inodes[inode_number].size = temp_size;
+    int ts;
+    if(temp_size > BLOCK_SIZE)ts = BLOCK_SIZE;
+    else ts = temp_size;
+    int previous_block_number = inodes[inode_number].first_disk_block_number;
+    for(int i=0;i<ts;i++){
+        disk_blocks[inodes[inode_number].first_disk_block_number].data[i] = temp_data[i];
+    }
+    inodes[inode_number].size += ts;
+    if(temp_size > BLOCK_SIZE ){
+        int blocks_required = ( temp_size / BLOCK_SIZE ) + 1 ;
+        int next_free_block;
+        for(int i=0;i<blocks_required-1;i++){
+            next_free_block = next_free_disk_block();
+            if(next_free_block == -1){
+                cout<<"No Free Block!"<<endl;
+                return -1;
+            }
+            disk_blocks[previous_block_number].next_block_number = next_free_block;
+            for(int j=0;j<BLOCK_SIZE;j++){
+                disk_blocks[next_free_block].data[j] = temp_data[ (i+1)*BLOCK_SIZE + j ];
+            }
+            inodes[inode_number].last_disk_block_number = next_free_block;
+            inodes[inode_number].size += BLOCK_SIZE;
+            previous_block_number = next_free_block;
+        }
+        if(temp_size % BLOCK_SIZE > 0){
+            next_free_block = next_free_disk_block();
+            if(next_free_block == -1){
+                cout<<"No Free Block!"<<endl;
+                return -1;
+            }
+            disk_blocks[previous_block_number].next_block_number = next_free_block;
+            for(int j=0;j<(temp_size%BLOCK_SIZE);j++){
+                disk_blocks[next_free_block].data[j] = temp_data[ (blocks_required-1)*BLOCK_SIZE + j ];
+            }
+            inodes[inode_number].last_disk_block_number = next_free_block;
+            inodes[inode_number].size += temp_size%BLOCK_SIZE;
+        }
+    }
+    return 0;
 }
+
+int append_file(int file_descriptor){
+    if(fs_block->open_files_flags[file_descriptor] == false){
+        cout<<"File Error!"<<endl;
+        return -1;
+    }
+    if(fs_block->open_files[file_descriptor].mode != 1){
+        cout<<"File Not Openen in Write Mode!"<<endl;
+        return -1;
+    }
+    int inode_number = fs_block->open_files[file_descriptor].inode_number;
+    char temp_data[INPUT_SIZE];
+    cout<<"Enter String!";
+    cin.getline(temp_data,INPUT_SIZE);
+    int temp_size = strlen(temp_data);
+
+    int previous_block_number = inodes[inode_number].last_disk_block_number;
+    int present_length_last_block = strlen(disk_blocks[previous_block_number].data);
+    int remaining_size = BLOCK_SIZE - present_length_last_block;
+    for(int i=0;i<remaining_size;i++){
+        //todo..................
+    }
+
+}
+
 int main(){
     string a = "abc";
     cout<<create_filesystem(a)<<endl;
     cout<<mount_disk(a)<<endl;
     string f = "f1.txt";
+    cout<<create_file(f)<<endl;
+    f = "f2.txt";
     cout<<create_file(f)<<endl;
     cout<<unmount_disk(string("abc"));
     return 0;
