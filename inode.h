@@ -49,12 +49,16 @@ int mount_disk(string name);
 int unmount_disk(string name);
 int next_free_inode();
 int open_file(string name);
-int close_file(string name);
+int close_file(int file_descriptor);
 int create_file(string name);
 int next_free_disk_block();
 int next_free_inode();
 int next_free_open_file();
 int write_file(int file_descriptor);
 int append_file(int file_descriptor);
-
+int read_file(int file_descriptor);
+void list_open_files();
+void list_files();
+int delete_file(string filename);
+int file_utilites();
 #endif
