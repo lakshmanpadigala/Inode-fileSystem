@@ -1,5 +1,7 @@
 # Inode-fileSystem
 
+Developed an virtual file system to perform all the file operations like create, delete, append, read, and write files with coressponding access modes. 
+
 command to compile file system:	`g++ filesystem.cpp`
 
 To run: `./a.out`
